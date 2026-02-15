@@ -746,6 +746,141 @@ fn detect_lang(input: &str) -> String {
 mod tests {
     use super::*;
 
+    fn opts() -> ConvertOptions {
+        ConvertOptions::default()
+    }
+
+    fn convert(md: &str) -> ConvertedDocument {
+        convert_markdown_to_typst(md, &FrontMatter::default(), &opts())
+            .expect("conversion should succeed")
+    }
+
+    #[test]
+    fn heading_levels() {
+        let doc = convert("# H1\n## H2\n### H3\n#### H4");
+        assert!(doc.body.contains("= H1"));
+        assert!(doc.body.contains("== H2"));
+        assert!(doc.body.contains("=== H3"));
+        assert!(doc.body.contains("==== H4"));
+    }
+
+    #[test]
+    fn bold_and_italic() {
+        let doc = convert("**bold** and *italic* and ***both***");
+        // Typst uses *bold* and _italic_ markup
+        assert!(doc.body.contains("*bold*"));
+        assert!(doc.body.contains("_italic_"));
+    }
+
+    #[test]
+    fn inline_code() {
+        let doc = convert("Use `println!()` here");
+        assert!(doc.body.contains("`println!()`"));
+    }
+
+    #[test]
+    fn fenced_code_block() {
+        let doc = convert("```python\nprint('hi')\n```");
+        assert!(doc.body.contains("```python"));
+        assert!(doc.body.contains("print('hi')"));
+    }
+
+    #[test]
+    fn unordered_list() {
+        let doc = convert("- item a\n- item b\n- item c");
+        assert!(doc.body.contains("- item a"));
+        assert!(doc.body.contains("- item b"));
+    }
+
+    #[test]
+    fn ordered_list() {
+        let doc = convert("1. first\n2. second");
+        // Typst uses `+` or numbered syntax
+        assert!(doc.body.contains("first"));
+        assert!(doc.body.contains("second"));
+    }
+
+    #[test]
+    fn link() {
+        let doc = convert("[click](https://example.com)");
+        assert!(doc.body.contains("#link(\"https://example.com\")[click]"));
+    }
+
+    #[test]
+    fn image() {
+        // Currently images render as links (Typst can't load arbitrary paths)
+        let doc = convert("![alt text](image.png)");
+        assert!(doc.body.contains("image.png"));
+    }
+
+    #[test]
+    fn table() {
+        let doc = convert("| A | B |\n|---|---|\n| 1 | 2 |");
+        assert!(doc.body.contains("#table("));
+        assert!(doc.body.contains("columns:"));
+    }
+
+    #[test]
+    fn task_list() {
+        let doc = convert("- [x] done\n- [ ] todo");
+        assert!(doc.body.contains("[x]") || doc.body.contains("☑"));
+        assert!(doc.body.contains("[ ]") || doc.body.contains("☐"));
+    }
+
+    #[test]
+    fn inline_math() {
+        let doc = convert("Equation $E = mc^2$ here");
+        assert!(doc.body.contains("$"));
+    }
+
+    #[test]
+    fn display_math() {
+        let doc = convert("$$\n\\frac{a}{b}\n$$");
+        assert!(doc.body.contains("$"));
+    }
+
+    #[test]
+    fn horizontal_rule() {
+        let doc = convert("above\n\n---\n\nbelow");
+        assert!(doc.body.contains("#line("));
+    }
+
+    #[test]
+    fn blockquote() {
+        let doc = convert("> quoted text");
+        assert!(doc.body.contains("#quote[") || doc.body.contains("#blockquote"));
+    }
+
+    #[test]
+    fn strikethrough() {
+        let doc = convert("~~deleted~~");
+        assert!(doc.body.contains("#strike[deleted]"));
+    }
+
+    #[test]
+    fn title_override() {
+        let doc = convert_markdown_to_typst(
+            "# Original",
+            &FrontMatter::default(),
+            &ConvertOptions {
+                title_override: Some("Override".into()),
+                ..ConvertOptions::default()
+            },
+        )
+        .expect("conversion should succeed");
+        assert_eq!(doc.title.as_deref(), Some("Override"));
+    }
+
+    #[test]
+    fn lang_from_frontmatter() {
+        let fm = FrontMatter {
+            lang: Some("zh".into()),
+            ..FrontMatter::default()
+        };
+        let doc = convert_markdown_to_typst("# Hi", &fm, &opts()).unwrap();
+        assert_eq!(doc.lang, "zh");
+    }
+
     #[test]
     fn inline_toc_disables_template_toc() {
         let doc = convert_markdown_to_typst(
