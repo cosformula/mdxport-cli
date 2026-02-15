@@ -11,10 +11,10 @@ Markdown to PDF via [Typst](https://typst.app). Single binary, no dependencies.
 
 ```sh
 # npm (recommended)
-npm install -g mdxport
+npm install -g @mdxport/cli
 
 # or via npx (no install)
-npx mdxport input.md -o output.pdf
+npx @mdxport/cli input.md -o output.pdf
 
 # or cargo
 cargo install mdxport

@@ -96,7 +96,7 @@ jobs:
             fi
           done
 
-      - name: Publish main package
+      - name: Publish main package (@mdxport/cli)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |

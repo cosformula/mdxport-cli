@@ -1,5 +1,5 @@
 {
-  "name": "mdxport",
+  "name": "@mdxport/cli",
   "version": "0.1.0",
   "description": "Markdown to PDF via Typst — single binary, LaTeX math support, beautiful templates",
   "license": "MIT",
