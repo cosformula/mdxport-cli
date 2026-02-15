@@ -1,6 +1,6 @@
 [package]
 name = "mdxport"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2024"
 description = "Markdown to PDF via Typst — comrak AST, in-process compilation, LaTeX math support"
 license = "MIT"
@@ -26,7 +26,9 @@ cli = ["dep:clap", "dep:notify", "dep:reqwest"]
 [dependencies]
 comrak = "0.35"
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 serde_yaml = "0.9"
+semver = "1"
 typst = "0.13"
 typst-pdf = "0.13"
 typst-assets = { version = "0.13", features = ["fonts"] }

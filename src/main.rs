@@ -12,6 +12,8 @@ use mdxport::{
     watch::{WatchCommand, watch_inputs},
 };
 
+mod update;
+
 #[derive(Debug, Parser)]
 #[command(name = "mdxport")]
 #[command(about = "Markdown to Typst PDF converter")]
@@ -79,6 +81,13 @@ struct ConvertArgs {
 
     #[arg(short, long, default_value_t = false, help = "Verbose diagnostics.")]
     verbose: bool,
+
+    #[arg(
+        long,
+        default_value_t = false,
+        help = "Suppress non-essential output (including update checks)."
+    )]
+    quiet: bool,
 }
 
 #[derive(Debug, Args)]
@@ -162,6 +171,7 @@ fn run_convert(cli: ConvertArgs) -> Result<(), String> {
         no_toc,
         watch,
         verbose,
+        quiet,
     } = cli;
 
     if inputs.is_empty() && watch {
@@ -236,6 +246,10 @@ fn run_convert(cli: ConvertArgs) -> Result<(), String> {
     input_sources.iter().try_for_each(|input| {
         process_one(input, &process_options, &mut warned_about_missing_fonts)
     })?;
+
+    if !quiet {
+        update::check_for_updates();
+    }
 
     Ok(())
 }
