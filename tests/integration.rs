@@ -240,10 +240,26 @@ fn e2e_write_and_verify_pdf_files() {
     let _ = fs::create_dir_all(out_dir);
 
     let fixtures = [
-        ("e2e_full_modern.pdf", include_str!("fixtures/e2e_full.md"), Style::ModernTech),
-        ("e2e_full_classic.pdf", include_str!("fixtures/e2e_full.md"), Style::ClassicEditorial),
-        ("cjk_modern.pdf", include_str!("fixtures/cjk.md"), Style::ModernTech),
-        ("cjk_classic.pdf", include_str!("fixtures/cjk.md"), Style::ClassicEditorial),
+        (
+            "e2e_full_modern.pdf",
+            include_str!("fixtures/e2e_full.md"),
+            Style::ModernTech,
+        ),
+        (
+            "e2e_full_classic.pdf",
+            include_str!("fixtures/e2e_full.md"),
+            Style::ClassicEditorial,
+        ),
+        (
+            "cjk_modern.pdf",
+            include_str!("fixtures/cjk.md"),
+            Style::ModernTech,
+        ),
+        (
+            "cjk_classic.pdf",
+            include_str!("fixtures/cjk.md"),
+            Style::ClassicEditorial,
+        ),
     ];
 
     for (name, md, style) in &fixtures {

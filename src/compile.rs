@@ -272,6 +272,10 @@ fn system_font_dirs() -> Vec<PathBuf> {
         }
     }
 
+    if let Some(home) = home_dir() {
+        dirs.push(home.join(".mdxport").join("fonts"));
+    }
+
     dirs
 }
 

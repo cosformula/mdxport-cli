@@ -193,7 +193,8 @@ mod tests {
 
     #[test]
     fn compose_custom_template() {
-        let tmpl = "#let article(title: none, authors: (), lang: \"en\", toc: false, body) = { body }";
+        let tmpl =
+            "#let article(title: none, authors: (), lang: \"en\", toc: false, body) = { body }";
         let src = compose_document_with_custom(tmpl, Some("T"), &[], "en", false, "hello");
         assert!(src.contains(tmpl));
         assert!(src.contains("hello"));
@@ -215,8 +216,14 @@ mod tests {
 
     #[test]
     fn style_roundtrip() {
-        assert_eq!(Style::try_from("modern-tech").unwrap() as u8, Style::ModernTech as u8);
-        assert_eq!(Style::try_from("classic-editorial").unwrap() as u8, Style::ClassicEditorial as u8);
+        assert_eq!(
+            Style::try_from("modern-tech").unwrap() as u8,
+            Style::ModernTech as u8
+        );
+        assert_eq!(
+            Style::try_from("classic-editorial").unwrap() as u8,
+            Style::ClassicEditorial as u8
+        );
         assert!(Style::try_from("nonexistent").is_err());
     }
 }

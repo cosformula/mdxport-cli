@@ -1,5 +1,6 @@
-#let title-fonts = ("IBM Plex Sans", "Inter", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Noto Sans SC", "Libertinus Serif")
-#let body-fonts = ("IBM Plex Sans", "Inter", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Noto Sans SC", "Libertinus Serif")
+// Sans-serif with CJK fallbacks: macOS → Windows → Linux → bundled
+#let title-fonts = ("IBM Plex Sans", "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", "Noto Sans CJK JP", "Yu Gothic", "Noto Sans CJK KR", "Malgun Gothic", "Apple SD Gothic Neo", "WenQuanYi Micro Hei", "Libertinus Serif")
+#let body-fonts = title-fonts
 #let code-fonts = ("JetBrains Mono", "DejaVu Sans Mono", "SFMono-Regular", "Consolas", "Menlo")
 
 #let article(

@@ -1,5 +1,6 @@
-#let title-fonts = ("Noto Serif CJK SC", "Noto Serif SC", "Times New Roman", "Georgia", "Libertinus Serif")
-#let body-fonts = ("Noto Serif CJK SC", "Noto Serif SC", "Times New Roman", "Georgia", "Libertinus Serif")
+// Serif with CJK fallbacks: macOS → Windows → Linux → bundled
+#let title-fonts = ("Noto Serif CJK SC", "Noto Serif SC", "Songti SC", "STSong", "SimSun", "Noto Serif CJK JP", "Yu Mincho", "MS Mincho", "Noto Serif CJK KR", "Batang", "Apple SD Gothic Neo", "Malgun Gothic", "AR PL UMing CN", "Times New Roman", "Georgia", "Libertinus Serif")
+#let body-fonts = title-fonts
 #let code-fonts = ("IBM Plex Mono", "JetBrains Mono", "DejaVu Sans Mono", "Consolas")
 
 #let article(
