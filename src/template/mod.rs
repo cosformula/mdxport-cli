@@ -63,7 +63,12 @@ pub fn compose_document(
             .map(|author| format!("\"{}\"", escape_string(author)))
             .collect::<Vec<_>>()
             .join(", ");
-        format!("({formatted})")
+        // Typst requires trailing comma for single-element tuples: ("a",) not ("a")
+        if authors.len() == 1 {
+            format!("({formatted},)")
+        } else {
+            format!("({formatted})")
+        }
     };
 
     let mut source = String::new();
@@ -104,7 +109,11 @@ pub fn compose_document_with_custom(
             .map(|author| format!("\"{}\"", escape_string(author)))
             .collect::<Vec<_>>()
             .join(", ");
-        format!("({formatted})")
+        if authors.len() == 1 {
+            format!("({formatted},)")
+        } else {
+            format!("({formatted})")
+        }
     };
 
     let mut source = String::new();

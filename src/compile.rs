@@ -38,16 +38,19 @@ pub fn compile_typst_to_pdf(source: &str, output_path: &Path) -> Result<Vec<u8>,
         let messages: Vec<String> = diagnostics
             .iter()
             .map(|d| {
-                let span_info = d
-                    .span
-                    .id()
-                    .and_then(|id| world.source(id).ok())
-                    .and_then(|src| {
-                        let range = src.range(d.span)?;
-                        let line = src.byte_to_line(range.start)?;
-                        Some(format!(" (line {})", line + 1))
-                    })
-                    .unwrap_or_default();
+                let span_info = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    d.span
+                        .id()
+                        .and_then(|id| world.source(id).ok())
+                        .and_then(|src| {
+                            let range = src.range(d.span)?;
+                            let line = src.byte_to_line(range.start)?;
+                            Some(format!(" (line {})", line + 1))
+                        })
+                }))
+                .ok()
+                .flatten()
+                .unwrap_or_default();
                 format!("{}{span_info}", d.message)
             })
             .collect();
