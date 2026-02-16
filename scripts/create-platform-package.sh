@@ -40,4 +40,5 @@ cat > "${OUT_DIR}/package.json" << EOF
 EOF
 
 cp "$BINARY" "$OUT_DIR/"
+chmod +x "$OUT_DIR/$(basename "$BINARY")"
 echo "Created ${PKG_NAME}@${VERSION} → ${OUT_DIR}"

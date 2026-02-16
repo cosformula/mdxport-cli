@@ -29,7 +29,11 @@ function getBinary() {
     const pkgDir = path.dirname(require.resolve(`${pkg}/package.json`));
     const ext = process.platform === "win32" ? ".exe" : "";
     const bin = path.join(pkgDir, `mdxport${ext}`);
-    if (fs.existsSync(bin)) return bin;
+    if (fs.existsSync(bin)) {
+      // Ensure binary is executable (npm may strip permissions)
+      try { fs.chmodSync(bin, 0o755); } catch {}
+      return bin;
+    }
   } catch {}
 
   console.error(

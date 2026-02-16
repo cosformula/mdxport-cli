@@ -123,7 +123,13 @@ jobs:
           sleep 10
 
           npm install -g @mdxport/cli@${VERSION}
-          ACTUAL=$(mdxport --version 2>&1)
+
+          # Debug: check what got installed
+          echo "--- Installed files ---"
+          ls -la $(npm root -g)/@mdxport/ 2>/dev/null || true
+          ls -la $(npm root -g)/@mdxport/cli/node_modules/@mdxport/*/mdxport* 2>/dev/null || true
+
+          ACTUAL=$(mdxport --version 2>&1) || true
           echo "Got: ${ACTUAL}"
 
           if echo "${ACTUAL}" | grep -q "${VERSION}"; then
