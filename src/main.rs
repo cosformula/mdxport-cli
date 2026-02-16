@@ -144,6 +144,13 @@ struct ProcessOptions<'a> {
 
 fn main() {
     let cli = Cli::parse();
+
+    // No subcommand, no input files, and stdin is a terminal → show help
+    if cli.command.is_none() && cli.convert.inputs.is_empty() && atty::is(atty::Stream::Stdin) {
+        Cli::parse_from(["mdxport", "--help"]);
+        return;
+    }
+
     if let Err(error) = run(cli) {
         eprintln!("[mdxport] {error}");
         process::exit(1);
