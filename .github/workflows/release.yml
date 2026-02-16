@@ -114,6 +114,25 @@ jobs:
           cat package.json
           npm publish --access public
 
+      - name: Smoke test (npm install + version check)
+        run: |
+          VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
+          echo "Expected version: ${VERSION}"
+
+          # Wait for npm registry to propagate
+          sleep 10
+
+          npm install -g @mdxport/cli@${VERSION}
+          ACTUAL=$(mdxport --version 2>&1)
+          echo "Got: ${ACTUAL}"
+
+          if echo "${ACTUAL}" | grep -q "${VERSION}"; then
+            echo "Smoke test passed"
+          else
+            echo "::error::Smoke test failed: expected version ${VERSION}, got: ${ACTUAL}"
+            exit 1
+          fi
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
