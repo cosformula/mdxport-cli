@@ -82,6 +82,25 @@ jobs:
         with:
           path: artifacts
 
+      - name: Pre-publish binary check
+        run: |
+          VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
+          BIN="artifacts/linux-x64/mdxport"
+          if [ -f "$BIN" ]; then
+            chmod +x "$BIN"
+            ACTUAL=$("$BIN" --version 2>&1) || true
+            echo "Binary output: ${ACTUAL}"
+            if echo "${ACTUAL}" | grep -q "${VERSION}"; then
+              echo "Pre-publish check passed"
+            else
+              echo "::error::Binary version mismatch: expected ${VERSION}, got: ${ACTUAL}"
+              exit 1
+            fi
+          else
+            echo "::error::linux-x64 binary not found"
+            exit 1
+          fi
+
       - name: Publish platform packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
