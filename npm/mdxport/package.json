@@ -16,11 +16,11 @@
     "README.md"
   ],
   "optionalDependencies": {
-    "@mdxport/darwin-arm64": "0.1.0",
-    "@mdxport/darwin-x64": "0.1.0",
-    "@mdxport/linux-x64": "0.1.0",
-    "@mdxport/linux-arm64": "0.1.0",
-    "@mdxport/win32-x64": "0.1.0"
+    "@mdxport/darwin-arm64": "0.0.0",
+    "@mdxport/darwin-x64": "0.0.0",
+    "@mdxport/linux-x64": "0.0.0",
+    "@mdxport/linux-arm64": "0.0.0",
+    "@mdxport/win32-x64": "0.0.0"
   },
   "keywords": [
     "markdown",

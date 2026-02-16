@@ -16,6 +16,7 @@ mod update;
 
 #[derive(Debug, Parser)]
 #[command(name = "mdxport")]
+#[command(version)]
 #[command(about = "Markdown to Typst PDF converter")]
 #[command(subcommand_precedence_over_arg = true)]
 struct Cli {

@@ -101,6 +101,17 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd npm/mdxport
+          VERSION=$(grep '^version' ../../Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
+          # Update optionalDependencies to match current version
+          node -e "
+            const pkg = require('./package.json');
+            for (const dep of Object.keys(pkg.optionalDependencies || {})) {
+              pkg.optionalDependencies[dep] = '${VERSION}';
+            }
+            pkg.version = '${VERSION}';
+            require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+          cat package.json
           npm publish --access public
 
       - name: Create GitHub Release

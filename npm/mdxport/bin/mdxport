@@ -43,4 +43,10 @@ function getBinary() {
 const result = spawnSync(getBinary(), process.argv.slice(2), {
   stdio: "inherit",
 });
+
+if (result.error) {
+  console.error(`mdxport: failed to execute binary: ${result.error.message}`);
+  process.exit(1);
+}
+
 process.exit(result.status ?? 1);
