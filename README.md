@@ -1,5 +1,9 @@
 # mdxport
 
+[![Crates.io](https://img.shields.io/crates/v/mdxport)](https://crates.io/crates/mdxport)
+[![npm](https://img.shields.io/npm/v/@mdxport/cli)](https://www.npmjs.com/package/@mdxport/cli)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Markdown to PDF via [Typst](https://typst.app). Single binary, no dependencies.
 
 - LaTeX math support (`$E = mc^2$`, `\frac{a}{b}`)
