@@ -101,6 +101,11 @@ jobs:
             exit 1
           fi
 
+      - name: Publish to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish --no-verify
+
       - name: Publish platform packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -157,11 +162,6 @@ jobs:
             echo "::error::Smoke test failed: expected version ${VERSION}, got: ${ACTUAL}"
             exit 1
           fi
-
-      - name: Publish to crates.io
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: cargo publish --no-verify
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
