@@ -498,23 +498,44 @@ impl TypstRenderer {
 
     fn render_table_cell<'a>(&self, cell_node: &'a AstNode<'a>) -> String {
         let mut parts = Vec::new();
+        let mut inline_part = String::new();
 
         for child in cell_node.children() {
             let value = child.data.borrow().value.clone();
             match value {
                 NodeValue::Paragraph => {
+                    let inline = inline_part.trim();
+                    if !inline.is_empty() {
+                        parts.push(inline.to_string());
+                    }
+                    inline_part.clear();
+
                     let text = self.render_inlines(child).trim().to_string();
                     if !text.is_empty() {
                         parts.push(text);
                     }
                 }
+                other if !other.block() => {
+                    inline_part.push_str(&self.render_inline(child));
+                }
                 _ => {
+                    let inline = inline_part.trim();
+                    if !inline.is_empty() {
+                        parts.push(inline.to_string());
+                    }
+                    inline_part.clear();
+
                     let text = self.render_block(child, 0).trim().to_string();
                     if !text.is_empty() {
                         parts.push(text.replace('\n', " "));
                     }
                 }
             }
+        }
+
+        let inline = inline_part.trim();
+        if !inline.is_empty() {
+            parts.push(inline.to_string());
         }
 
         parts.join(" ")
@@ -814,10 +835,43 @@ mod tests {
     }
 
     #[test]
+    fn debug_table_typst_output() {
+        let doc = convert("| A | B |\n|---|---|\n| one | two |");
+        println!("--- debug_table_typst_output ---\n{}", doc.body);
+        assert!(doc.body.contains("#table("));
+    }
+
+    #[test]
     fn table() {
-        let doc = convert("| A | B |\n|---|---|\n| 1 | 2 |");
+        let doc = convert("| A | B |\n|---|---|\n| one | two |\n| three | four |");
         assert!(doc.body.contains("#table("));
         assert!(doc.body.contains("columns:"));
+        assert!(doc.body.contains("[one]"));
+        assert!(doc.body.contains("[two]"));
+        assert!(doc.body.contains("[three]"));
+        assert!(doc.body.contains("[four]"));
+    }
+
+    #[test]
+    fn table_with_inline_formatting() {
+        let doc = convert("| Left | Right |\n|---|---|\n| **bold** | `code` |");
+        assert!(doc.body.contains("[*bold*]"));
+        assert!(doc.body.contains("[`code`]"));
+    }
+
+    #[test]
+    fn table_with_math() {
+        let doc = convert("| Expr | Value |\n|---|---|\n| $x^2$ | $\\alpha + \\beta$ |");
+        assert!(doc.body.contains("[$x^2$]"));
+        assert!(doc.body.contains("[$alpha + beta$]"));
+    }
+
+    #[test]
+    fn table_edge_cases() {
+        let doc = convert("| A | B | C |\n|---|---|---|\n| left |  | tail |\n| only one |||");
+        assert!(doc.body.contains("[left]"));
+        assert!(doc.body.contains("[tail]"));
+        assert!(doc.body.contains("[only one]"));
     }
 
     #[test]

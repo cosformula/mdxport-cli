@@ -56,6 +56,10 @@ fn parse_frontmatter_and_convert_core_syntax() {
     assert!(converted.body.contains("#outline()"));
     assert!(converted.body.contains("- [ ]") || converted.body.contains("- [x]"));
     assert!(converted.body.contains("#table("));
+    assert!(converted.body.contains("[one]"));
+    assert!(converted.body.contains("[two]"));
+    assert!(converted.body.contains("[three]"));
+    assert!(converted.body.contains("[four]"));
     assert!(converted.body.contains("```rust"));
 }
 
