@@ -15,7 +15,7 @@ Markdown to PDF via [Typst](https://typst.app). Single binary, no dependencies.
 ## Output Examples
 
 <p align="center">
-  <img src="screenshots/showcase.png" alt="Markdown source to PDF output" width="100%" />
+  <img src="https://raw.githubusercontent.com/cosformula/mdxport-cli/main/screenshots/showcase.png" alt="Markdown source to PDF output" width="100%" />
 </p>
 
 <p align="center">
@@ -25,7 +25,7 @@ Markdown to PDF via [Typst](https://typst.app). Single binary, no dependencies.
 <details>
 <summary>CJK output (Chinese/Japanese/Korean)</summary>
 <p align="center">
-  <img src="screenshots/cjk-output.png" alt="CJK PDF output" width="50%" />
+  <img src="https://raw.githubusercontent.com/cosformula/mdxport-cli/main/screenshots/cjk-output.png" alt="CJK PDF output" width="50%" />
 </p>
 </details>
 
