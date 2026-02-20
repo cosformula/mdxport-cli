@@ -109,6 +109,10 @@ Markdown ──comrak──→ AST ──convert──→ Typst markup
                           typst crate ──compile──→ PDF bytes
 ```
 
+## Web Version
+
+Prefer a browser UI? Try [mdxport.com](https://mdxport.com), the web version with real-time preview, Mermaid diagrams, and AI Markdown formatting. No install needed. ([source](https://github.com/cosformula/mdxport))
+
 ## License
 
 MIT
