@@ -11,14 +11,19 @@ Markdown to PDF via [Typst](https://typst.app). Single binary, no dependencies.
 ## Output Examples
 
 <p align="center">
-  <img src="screenshots/english-output.png" alt="English PDF output" width="45%" />
-  &nbsp;&nbsp;
-  <img src="screenshots/cjk-output.png" alt="CJK PDF output" width="45%" />
+  <img src="screenshots/showcase.png" alt="Markdown source to PDF output" width="100%" />
 </p>
 
 <p align="center">
-  <em>Left: English with math, code highlighting, TOC &nbsp;|&nbsp; Right: Chinese/Japanese/Korean mixed document</em>
+  <em>Markdown source (left) → PDF output (right): math, TOC, code highlighting, footnotes</em>
 </p>
+
+<details>
+<summary>CJK output (Chinese/Japanese/Korean)</summary>
+<p align="center">
+  <img src="screenshots/cjk-output.png" alt="CJK PDF output" width="50%" />
+</p>
+</details>
 
 ## Install
 
