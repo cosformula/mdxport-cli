@@ -80,12 +80,12 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          path: /tmp/artifacts
 
       - name: Pre-publish binary check
         run: |
           VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
-          BIN="artifacts/linux-x64/mdxport"
+          BIN="/tmp/artifacts/linux-x64/mdxport"
           if [ -f "$BIN" ]; then
             chmod +x "$BIN"
             ACTUAL=$("$BIN" --version 2>&1) || true
@@ -106,7 +106,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           for platform in darwin-arm64 darwin-x64 linux-x64 linux-arm64 win32-x64; do
-            dir="artifacts/${platform}"
+            dir="/tmp/artifacts/${platform}"
             if [ -d "$dir" ]; then
               echo "Publishing @mdxport/${platform}..."
               cd "$dir"
@@ -161,7 +161,7 @@ jobs:
       - name: Publish to crates.io
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: cargo publish --no-verify --allow-dirty
+        run: cargo publish --no-verify
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
