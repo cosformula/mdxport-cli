@@ -6,6 +6,19 @@ Markdown to PDF via [Typst](https://typst.app). Single binary, no dependencies.
 - Built-in templates or bring your own `.typ`
 - YAML frontmatter (title, author, language, TOC)
 - Watch mode — recompile on file change
+- CJK support with `mdxport fonts install`
+
+## Output Examples
+
+<p align="center">
+  <img src="screenshots/english-output.png" alt="English PDF output" width="45%" />
+  &nbsp;&nbsp;
+  <img src="screenshots/cjk-output.png" alt="CJK PDF output" width="45%" />
+</p>
+
+<p align="center">
+  <em>Left: English with math, code highlighting, TOC &nbsp;|&nbsp; Right: Chinese/Japanese/Korean mixed document</em>
+</p>
 
 ## Install
 
