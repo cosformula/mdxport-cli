@@ -72,6 +72,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Verify npm wrapper version matches Cargo.toml
+        run: |
+          CARGO_VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
+          NPM_VERSION=$(node -p "require('./npm/mdxport/package.json').version")
+          echo "Cargo.toml version: ${CARGO_VERSION}"
+          echo "npm/mdxport/package.json version: ${NPM_VERSION}"
+          if [ "${CARGO_VERSION}" != "${NPM_VERSION}" ]; then
+            echo "::error::Version mismatch. Update npm/mdxport/package.json to ${CARGO_VERSION}."
+            exit 1
+          fi
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20

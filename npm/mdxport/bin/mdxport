@@ -38,7 +38,7 @@ function getBinary() {
 
   console.error(
     `mdxport: platform package ${pkg} not installed.\n` +
-      `Try reinstalling: npm install -g mdxport\n` +
+      `Try reinstalling: npm install -g @mdxport/cli\n` +
       `Or use cargo:    cargo install mdxport`
   );
   process.exit(1);
