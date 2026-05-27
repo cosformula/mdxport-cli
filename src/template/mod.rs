@@ -179,6 +179,9 @@ mod tests {
         let src = compose_document(Style::Standard, Some("Title"), &[], "en", false, "body");
         assert!(src.contains("#let article("));
         assert!(src.contains("numbering: none"));
+        assert!(src.contains("show table.header: strong"));
+        assert!(src.contains("stroke: (_, y) => if y > 0 { (top: 0.5pt + luma(220)) }"));
+        assert!(src.contains("inset: (x: 8pt, y: 8pt)"));
         assert!(src.contains("Title"));
         assert!(src.contains("body"));
     }

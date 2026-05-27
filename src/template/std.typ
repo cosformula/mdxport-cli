@@ -33,10 +33,10 @@
     inset: 1em,
   )
   show table: set table(
-    stroke: (x, y) => (x: none, y: 0.5pt + luma(220)),
-    inset: (x: 0pt, y: 8pt),
+    stroke: (_, y) => if y > 0 { (top: 0.5pt + luma(220)) },
+    inset: (x: 8pt, y: 8pt),
   )
-  show table.header: set text(weight: "bold")
+  show table.header: strong
 
   if title != none and title != "" {
     align(center, text(weight: "bold", size: 30pt, lang: lang)[#title])
