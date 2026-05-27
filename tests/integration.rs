@@ -208,6 +208,35 @@ fn typst_label_markers_are_escaped_in_text_contexts() {
 }
 
 #[test]
+fn e2e_standard_style_compiles_markdown_like_headings_and_tables() {
+    let md = "## 1. Общая спецификация\n\n| Stall | K7 3.0 GB/s | KU040 6.5 GB/s |\n|---|---:|---:|\n| 1 ms | 6 MB | 13 MB |\n";
+    let parsed = split_frontmatter(md).expect("frontmatter parse");
+    let converted = convert_markdown_to_typst(
+        &parsed.body,
+        &parsed.frontmatter,
+        &ConvertOptions::default(),
+    )
+    .expect("convert");
+    let source = compose_document(
+        Style::Standard,
+        converted.title.as_deref(),
+        &converted.authors,
+        &converted.lang,
+        converted.toc,
+        &converted.body,
+    );
+
+    assert!(source.contains("numbering: none"));
+    assert!(source.contains("table.header("));
+
+    let tmp = Path::new("/tmp").join(format!("mdxport_std_style_{}.pdf", std::process::id()));
+    let bytes = compile_typst_to_pdf(&source, &tmp).expect("standard style compile");
+    assert!(bytes.len() > 500);
+    assert_eq!(&bytes[..5], b"%PDF-");
+    let _ = fs::remove_file(&tmp);
+}
+
+#[test]
 fn e2e_math_heavy() {
     let md = r#"---
 title: Math Test

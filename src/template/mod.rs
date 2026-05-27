@@ -4,6 +4,7 @@ use std::fmt::{Display, Formatter};
 pub enum Style {
     ModernTech,
     ClassicEditorial,
+    Standard,
 }
 
 #[derive(Debug, Clone)]
@@ -26,6 +27,7 @@ impl TryFrom<&str> for Style {
         match value {
             "modern-tech" => Ok(Self::ModernTech),
             "classic-editorial" => Ok(Self::ClassicEditorial),
+            "std" => Ok(Self::Standard),
             _ => Err(StyleParseError {
                 value: value.to_string(),
             }),
@@ -38,6 +40,7 @@ impl Style {
         match self {
             Self::ModernTech => include_str!("modern_tech.typ"),
             Self::ClassicEditorial => include_str!("classic_editorial.typ"),
+            Self::Standard => include_str!("std.typ"),
         }
     }
 }
@@ -172,6 +175,15 @@ mod tests {
     }
 
     #[test]
+    fn compose_standard() {
+        let src = compose_document(Style::Standard, Some("Title"), &[], "en", false, "body");
+        assert!(src.contains("#let article("));
+        assert!(src.contains("numbering: none"));
+        assert!(src.contains("Title"));
+        assert!(src.contains("body"));
+    }
+
+    #[test]
     fn compose_no_title() {
         let src = compose_document(Style::ModernTech, None, &[], "en", false, "body");
         assert!(src.contains("title: none"));
@@ -224,6 +236,7 @@ mod tests {
             Style::try_from("classic-editorial").unwrap() as u8,
             Style::ClassicEditorial as u8
         );
+        assert_eq!(Style::try_from("std").unwrap() as u8, Style::Standard as u8);
         assert!(Style::try_from("nonexistent").is_err());
     }
 }

@@ -1,0 +1,69 @@
+// Markdown-like document style: no automatic heading numbering.
+#let title-fonts = ("IBM Plex Sans", "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", "Noto Sans CJK JP", "Yu Gothic", "Noto Sans CJK KR", "Malgun Gothic", "Apple SD Gothic Neo", "WenQuanYi Micro Hei", "Libertinus Serif")
+#let body-fonts = title-fonts
+#let code-fonts = ("JetBrains Mono", "DejaVu Sans Mono", "SFMono-Regular", "Consolas", "Menlo")
+
+#let article(
+  title: none,
+  authors: (),
+  lang: "en",
+  toc: false,
+  body,
+) = {
+  set text(font: body-fonts, lang: lang)
+  set page(
+    paper: "us-letter",
+    margin: (x: 16mm, y: 18mm),
+    numbering: "1",
+  )
+
+  set heading(
+    numbering: none,
+    supplement: none,
+  )
+  show heading: set text(font: title-fonts, weight: "semibold")
+  set par(justify: true)
+
+  show raw.where(block: true): set text(font: code-fonts, size: 9.5pt)
+  show raw.where(block: false): set text(font: code-fonts, size: 9.5pt)
+  show link: set text(fill: rgb("#1E88E5"))
+  show quote: block.with(
+    fill: luma(245),
+    stroke: 0.8pt + rgb("#9E9E9E"),
+    inset: 1em,
+  )
+  show table: set table(
+    stroke: (x, y) => (x: none, y: 0.5pt + luma(220)),
+    inset: (x: 0pt, y: 8pt),
+  )
+  show table.header: set text(weight: "bold")
+
+  if title != none and title != "" {
+    align(center, text(weight: "bold", size: 30pt, lang: lang)[#title])
+    v(1.2em)
+  }
+
+  if authors != () {
+    align(center, {
+      for i in range(authors.len()) {
+        text(size: 10pt, lang: lang)[#authors.at(i)]
+        if i + 1 < authors.len() {
+          ", "
+        }
+      }
+    })
+    v(1.2em)
+  }
+
+  if toc {
+    if lang == "zh" {
+      heading(level: 1, outlined: false)[目录]
+    } else {
+      heading(level: 1, outlined: false)[Table of Contents]
+    }
+    outline()
+    v(1.6em)
+  }
+
+  body
+}

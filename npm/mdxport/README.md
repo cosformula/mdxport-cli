@@ -28,6 +28,7 @@ mdxport input.md -o output.pdf
 
 # Choose a style
 mdxport input.md -s classic-editorial
+mdxport input.md -s std
 
 # Custom template
 mdxport input.md --template my_style.typ
