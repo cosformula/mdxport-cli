@@ -167,6 +167,23 @@ fn e2e_minimal_no_frontmatter() {
 }
 
 #[test]
+fn e2e_table_cells_with_comparison_values() {
+    let md = "| Resource | Safe | Stretch |\n|---|---:|---:|\n| DSP | <20 | <40 |";
+    let pdf = md_to_pdf(md, Style::ModernTech);
+    assert!(pdf.len() > 500);
+    assert_eq!(&pdf[..5], b"%PDF-");
+}
+
+#[test]
+fn e2e_at_sign_text_does_not_create_label_references() {
+    let md =
+        "Pipeline target: @250 MHz.\n\n| Size | K7 @ 3.0 GB/s |\n|---|---:|\n| 1 MB | ~3000 fps |";
+    let pdf = md_to_pdf(md, Style::ModernTech);
+    assert!(pdf.len() > 500);
+    assert_eq!(&pdf[..5], b"%PDF-");
+}
+
+#[test]
 fn e2e_math_heavy() {
     let md = r#"---
 title: Math Test
