@@ -483,12 +483,23 @@ impl TypstRenderer {
             out.push_str("),\n");
         }
 
-        for row in rows {
-            for col in 0..max_cols {
-                let cell = row.get(col).map_or("", String::as_str);
-                out.push_str("  [");
-                out.push_str(cell);
-                out.push_str("],\n");
+        for (row_index, row) in rows.into_iter().enumerate() {
+            if row_index == 0 {
+                out.push_str("  table.header(\n");
+                for col in 0..max_cols {
+                    let cell = row.get(col).map_or("", String::as_str);
+                    out.push_str("    [");
+                    out.push_str(cell);
+                    out.push_str("],\n");
+                }
+                out.push_str("  ),\n");
+            } else {
+                for col in 0..max_cols {
+                    let cell = row.get(col).map_or("", String::as_str);
+                    out.push_str("  [");
+                    out.push_str(cell);
+                    out.push_str("],\n");
+                }
             }
         }
 
@@ -849,6 +860,8 @@ mod tests {
         let doc = convert("| A | B |\n|---|---|\n| one | two |\n| three | four |");
         assert!(doc.body.contains("#table("));
         assert!(doc.body.contains("columns:"));
+        assert!(doc.body.contains("table.header("));
+        assert!(doc.body.find("table.header(").unwrap() < doc.body.find("[one]").unwrap());
         assert!(doc.body.contains("[one]"));
         assert!(doc.body.contains("[two]"));
         assert!(doc.body.contains("[three]"));

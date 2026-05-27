@@ -45,7 +45,7 @@ struct ConvertArgs {
     )]
     output: Option<PathBuf>,
 
-    #[arg(short, long, default_value = "modern-tech", value_name = "style", value_parser = clap::builder::PossibleValuesParser::new(["modern-tech", "classic-editorial"]))]
+    #[arg(short, long, default_value = "modern-tech", value_name = "style", value_parser = clap::builder::PossibleValuesParser::new(["modern-tech", "classic-editorial", "std"]))]
     style: String,
 
     #[arg(
