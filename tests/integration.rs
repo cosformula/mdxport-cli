@@ -1,10 +1,13 @@
 use std::fs;
 use std::path::Path;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use mdxport::compile::compile_typst_to_pdf;
 use mdxport::convert::{ConvertOptions, convert_markdown_to_typst};
 use mdxport::frontmatter::split_frontmatter;
 use mdxport::template::{Style, compose_document, compose_document_with_custom};
+
+static NEXT_TMP_ID: AtomicUsize = AtomicUsize::new(0);
 
 /// Helper: full pipeline from markdown string to PDF bytes
 fn md_to_pdf(markdown: &str, style: Style) -> Vec<u8> {
@@ -23,7 +26,12 @@ fn md_to_pdf(markdown: &str, style: Style) -> Vec<u8> {
         converted.toc,
         &converted.body,
     );
-    let tmp = Path::new("/tmp").join(format!("mdxport_test_{}.pdf", std::process::id()));
+    let tmp_id = NEXT_TMP_ID.fetch_add(1, Ordering::Relaxed);
+    let tmp = Path::new("/tmp").join(format!(
+        "mdxport_test_{}_{}.pdf",
+        std::process::id(),
+        tmp_id
+    ));
     let bytes = compile_typst_to_pdf(&source, &tmp).expect("compile");
     let _ = fs::remove_file(&tmp);
     bytes
@@ -164,6 +172,39 @@ fn e2e_minimal_no_frontmatter() {
     let pdf = md_to_pdf("# Hello\n\nJust a paragraph.", Style::ModernTech);
     assert!(pdf.len() > 500);
     assert_eq!(&pdf[..5], b"%PDF-");
+}
+
+#[test]
+fn e2e_table_cells_with_comparison_values() {
+    let md = "| Resource | Safe | Stretch |\n|---|---:|---:|\n| DSP | <20 | <40 |";
+    let pdf = md_to_pdf(md, Style::ModernTech);
+    assert!(pdf.len() > 500);
+    assert_eq!(&pdf[..5], b"%PDF-");
+}
+
+#[test]
+fn e2e_at_sign_text_does_not_create_label_references() {
+    let md =
+        "Pipeline target: @250 MHz.\n\n| Size | K7 @ 3.0 GB/s |\n|---|---:|\n| 1 MB | ~3000 fps |";
+    let pdf = md_to_pdf(md, Style::ModernTech);
+    assert!(pdf.len() > 500);
+    assert_eq!(&pdf[..5], b"%PDF-");
+}
+
+#[test]
+fn typst_label_markers_are_escaped_in_text_contexts() {
+    let md = "Pipeline target: @250 MHz.\n\n| Resource | Safe | Stretch |\n|---|---:|---:|\n| DSP | <20 | >40 |";
+    let parsed = split_frontmatter(md).expect("frontmatter parse");
+    let converted = convert_markdown_to_typst(
+        &parsed.body,
+        &parsed.frontmatter,
+        &ConvertOptions::default(),
+    )
+    .expect("convert");
+
+    assert!(converted.body.contains("\\@250"));
+    assert!(converted.body.contains("\\<20"));
+    assert!(converted.body.contains("\\>40"));
 }
 
 #[test]

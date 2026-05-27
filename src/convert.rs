@@ -738,6 +738,9 @@ fn escape_text(input: &str) -> String {
             '_' => out.push_str("\\_"),
             '$' => out.push_str("\\$"),
             '`' => out.push_str("\\`"),
+            '@' => out.push_str("\\@"),
+            '<' => out.push_str("\\<"),
+            '>' => out.push_str("\\>"),
             _ => out.push(ch),
         }
     }
