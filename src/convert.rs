@@ -488,9 +488,9 @@ impl TypstRenderer {
                 out.push_str("  table.header(\n");
                 for col in 0..max_cols {
                     let cell = row.get(col).map_or("", String::as_str);
-                    out.push_str("    [");
+                    out.push_str("    strong([");
                     out.push_str(cell);
-                    out.push_str("],\n");
+                    out.push_str("]),\n");
                 }
                 out.push_str("  ),\n");
             } else {
@@ -861,6 +861,8 @@ mod tests {
         assert!(doc.body.contains("#table("));
         assert!(doc.body.contains("columns:"));
         assert!(doc.body.contains("table.header("));
+        assert!(doc.body.contains("strong([A])"));
+        assert!(doc.body.contains("strong([B])"));
         assert!(doc.body.find("table.header(").unwrap() < doc.body.find("[one]").unwrap());
         assert!(doc.body.contains("[one]"));
         assert!(doc.body.contains("[two]"));
