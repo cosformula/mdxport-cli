@@ -99,7 +99,6 @@ jobs:
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-          package-manager-cache: false
 
       - name: Ensure npm supports trusted publishing
         run: npm install -g npm@^11.10.0
@@ -128,10 +127,15 @@ jobs:
             exit 1
           fi
 
+      - name: Authenticate with crates.io
+        id: crates_io_auth
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.npm_only == false }}
+        uses: rust-lang/crates-io-auth-action@v1.0.4
+
       - name: Publish to crates.io
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.npm_only == false }}
         env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ steps.crates_io_auth.outputs.token }}
         run: cargo publish --no-verify --allow-dirty
 
       - name: Publish platform packages
@@ -170,12 +174,13 @@ jobs:
           # Wait for npm registry to propagate
           sleep 10
 
-          npm install -g @mdxport/cli@${VERSION}
+          npm install -g "@mdxport/cli@${VERSION}"
 
           # Debug: check what got installed
           echo "--- Installed files ---"
-          ls -la $(npm root -g)/@mdxport/ 2>/dev/null || true
-          ls -la $(npm root -g)/@mdxport/cli/node_modules/@mdxport/*/mdxport* 2>/dev/null || true
+          NPM_ROOT=$(npm root -g)
+          ls -la "${NPM_ROOT}/@mdxport/" 2>/dev/null || true
+          ls -la "${NPM_ROOT}"/@mdxport/cli/node_modules/@mdxport/*/mdxport* 2>/dev/null || true
 
           ACTUAL=$(mdxport --version 2>&1) || true
           echo "Got: ${ACTUAL}"
