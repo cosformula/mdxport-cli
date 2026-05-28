@@ -4,6 +4,13 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      npm_only:
+        description: "Publish npm packages without republishing the Rust crate"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -73,9 +80,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Read version
+        id: version
+        run: echo "value=$(grep '^version' Cargo.toml | head -1 | sed 's/.*\"\(.*\)\"/\1/')" >> "$GITHUB_OUTPUT"
+
       - name: Verify npm wrapper version matches Cargo.toml
         run: |
-          CARGO_VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
+          CARGO_VERSION="${{ steps.version.outputs.value }}"
           NPM_VERSION=$(node -p "require('./npm/mdxport/package.json').version")
           echo "Cargo.toml version: ${CARGO_VERSION}"
           echo "npm/mdxport/package.json version: ${NPM_VERSION}"
@@ -118,6 +129,7 @@ jobs:
           fi
 
       - name: Publish to crates.io
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.npm_only == false }}
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish --no-verify --allow-dirty
@@ -178,4 +190,5 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.version.outputs.value }}
           generate_release_notes: true
