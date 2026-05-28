@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 env:
   CARGO_TERM_COLOR: always
@@ -85,8 +86,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g npm@^11.10.0
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -118,8 +123,6 @@ jobs:
         run: cargo publish --no-verify --allow-dirty
 
       - name: Publish platform packages
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           for platform in darwin-arm64 darwin-x64 linux-x64 linux-arm64 win32-x64; do
             dir="/tmp/artifacts/${platform}"
@@ -132,8 +135,6 @@ jobs:
           done
 
       - name: Publish main package (@mdxport/cli)
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd npm/mdxport
           VERSION=$(grep '^version' ../../Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')

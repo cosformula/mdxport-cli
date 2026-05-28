@@ -5,9 +5,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cosformula/mdxport"
+    "url": "git+https://github.com/cosformula/mdxport-cli.git"
   },
-  "homepage": "https://github.com/cosformula/mdxport",
+  "homepage": "https://github.com/cosformula/mdxport-cli",
   "bin": {
     "mdxport": "bin/mdxport"
   },

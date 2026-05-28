@@ -29,7 +29,7 @@ cat > "${OUT_DIR}/package.json" << EOF
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cosformula/mdxport"
+    "url": "git+https://github.com/cosformula/mdxport-cli.git"
   },
   "os": ["${OS}"],
   "cpu": ["${CPU}"],
