@@ -48,6 +48,7 @@ pub fn convert_markdown_to_typst(
     options: &ConvertOptions,
 ) -> Result<ConvertedDocument, ConvertError> {
     let (normalized, has_inline_toc) = normalize_toc_tokens(markdown);
+    let normalized = normalize_latex_math_delimiters(&normalized);
 
     let mut comrak_options = ComrakOptions::default();
     comrak_options.extension.table = true;
@@ -171,6 +172,163 @@ fn normalize_toc_tokens(markdown: &str) -> (String, bool) {
     }
 
     (normalized, has_inline_toc)
+}
+
+fn normalize_latex_math_delimiters(markdown: &str) -> String {
+    let mut normalized = String::with_capacity(markdown.len());
+    let mut index = 0;
+    let mut line_start = true;
+    let mut code_fence: Option<(u8, usize)> = None;
+    let mut close_fence_after_line = false;
+
+    while index < markdown.len() {
+        if line_start {
+            if let Some((marker, min_len)) = code_fence {
+                close_fence_after_line =
+                    matches_code_fence(markdown, index, marker, min_len).is_some();
+            } else if let Some(fence) = code_fence_at_line_start(markdown, index) {
+                code_fence = Some(fence);
+            }
+        }
+
+        let in_code_fence = code_fence.is_some();
+        if !in_code_fence {
+            if let Some(end) = matching_inline_code_end(markdown, index) {
+                normalized.push_str(&markdown[index..end]);
+                line_start = markdown[index..end].ends_with('\n');
+                index = end;
+                continue;
+            }
+
+            if is_unescaped_delimiter_at(markdown, index, r"\[")
+                && let Some(end) = find_unescaped_delimiter(markdown, index + 2, r"\]")
+            {
+                normalized.push_str("$$");
+                normalized.push_str(&markdown[index + 2..end]);
+                normalized.push_str("$$");
+                line_start = false;
+                index = end + 2;
+                continue;
+            }
+
+            if is_unescaped_delimiter_at(markdown, index, r"\(")
+                && let Some(end) = find_unescaped_delimiter(markdown, index + 2, r"\)")
+            {
+                normalized.push('$');
+                normalized.push_str(&markdown[index + 2..end]);
+                normalized.push('$');
+                line_start = false;
+                index = end + 2;
+                continue;
+            }
+        }
+
+        let ch = markdown[index..]
+            .chars()
+            .next()
+            .expect("valid char boundary");
+        normalized.push(ch);
+        index += ch.len_utf8();
+
+        if ch == '\n' {
+            line_start = true;
+            if close_fence_after_line {
+                code_fence = None;
+                close_fence_after_line = false;
+            }
+        } else {
+            line_start = false;
+        }
+    }
+
+    normalized
+}
+
+fn code_fence_at_line_start(input: &str, index: usize) -> Option<(u8, usize)> {
+    matches_code_fence(input, index, b'`', 3).or_else(|| matches_code_fence(input, index, b'~', 3))
+}
+
+fn matches_code_fence(
+    input: &str,
+    index: usize,
+    marker: u8,
+    min_len: usize,
+) -> Option<(u8, usize)> {
+    let bytes = input.as_bytes();
+    let mut cursor = index;
+    let mut spaces = 0;
+
+    while cursor < bytes.len() && bytes[cursor] == b' ' && spaces < 3 {
+        cursor += 1;
+        spaces += 1;
+    }
+
+    let mut len = 0;
+    while cursor + len < bytes.len() && bytes[cursor + len] == marker {
+        len += 1;
+    }
+
+    if len >= min_len {
+        Some((marker, len))
+    } else {
+        None
+    }
+}
+
+fn matching_inline_code_end(input: &str, index: usize) -> Option<usize> {
+    let tick_len = count_backtick_run(input, index);
+    if tick_len == 0 {
+        return None;
+    }
+
+    let mut cursor = index + tick_len;
+    while cursor < input.len() {
+        if count_backtick_run(input, cursor) == tick_len {
+            return Some(cursor + tick_len);
+        }
+
+        let ch = input[cursor..].chars().next().expect("valid char boundary");
+        cursor += ch.len_utf8();
+    }
+
+    None
+}
+
+fn count_backtick_run(input: &str, index: usize) -> usize {
+    input[index..]
+        .as_bytes()
+        .iter()
+        .take_while(|byte| **byte == b'`')
+        .count()
+}
+
+fn is_unescaped_delimiter_at(input: &str, index: usize, delimiter: &str) -> bool {
+    input[index..].starts_with(delimiter) && !is_escaped_by_previous_backslash(input, index)
+}
+
+fn find_unescaped_delimiter(input: &str, start: usize, delimiter: &str) -> Option<usize> {
+    let mut cursor = start;
+    while let Some(offset) = input[cursor..].find(delimiter) {
+        let index = cursor + offset;
+        if !is_escaped_by_previous_backslash(input, index) {
+            return Some(index);
+        }
+        cursor = index + 1;
+    }
+    None
+}
+
+fn is_escaped_by_previous_backslash(input: &str, index: usize) -> bool {
+    let mut count = 0;
+    let bytes = input.as_bytes();
+    let mut cursor = index;
+
+    while cursor > 0 && bytes[cursor - 1] == b'\\' {
+        count += 1;
+        cursor -= 1;
+    }
+
+    count % 2 == 1
 }
 
 struct TypstRenderer {
@@ -909,6 +1067,29 @@ mod tests {
     fn display_math() {
         let doc = convert("$$\n\\frac{a}{b}\n$$");
         assert!(doc.body.contains("$"));
+    }
+
+    #[test]
+    fn latex_inline_math_delimiters_render_as_math() {
+        let doc = convert("Equation \\(r\\), \\(\\sigma\\), and `\\(not_math\\)`.");
+
+        assert!(doc.body.contains("$r$"));
+        assert!(doc.body.contains("$sigma$"));
+        assert!(doc.body.contains("`\\\\(not_math\\\\)`"));
+        assert!(!doc.body.contains("\\\\(r\\\\)"));
+        assert!(!doc.body.contains("\\\\(\\\\sigma\\\\)"));
+    }
+
+    #[test]
+    fn latex_display_math_delimiters_render_as_math() {
+        let doc = convert(
+            "Display:\n\n\\[\nE=\\frac{1}{\\sqrt{r}}AB^\\top.\n\\]\n\n```text\n\\[not math\\]\n```",
+        );
+
+        assert!(doc.body.contains("$\n"));
+        assert!(doc.body.contains("sqrt"));
+        assert!(doc.body.contains("```text\n\\[not math\\]\n```"));
+        assert!(!doc.body.contains("\\\\["));
     }
 
     #[test]
