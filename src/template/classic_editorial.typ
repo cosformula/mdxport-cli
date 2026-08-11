@@ -1,5 +1,5 @@
-// Serif with CJK fallbacks: macOS → Windows → Linux → bundled
-#let title-fonts = ("Noto Serif CJK SC", "Noto Serif SC", "Songti SC", "STSong", "SimSun", "Noto Serif CJK JP", "Yu Mincho", "MS Mincho", "Noto Serif CJK KR", "Batang", "Apple SD Gothic Neo", "Malgun Gothic", "AR PL UMing CN", "Times New Roman", "Georgia", "Libertinus Serif")
+// Prefer Latin fonts so CJK punctuation metrics do not affect Latin text.
+#let title-fonts = ("Times New Roman", "Georgia", "Libertinus Serif", "Noto Serif CJK SC", "Noto Serif SC", "Songti SC", "STSong", "SimSun", "Noto Serif CJK JP", "Yu Mincho", "MS Mincho", "Noto Serif CJK KR", "Batang", "Apple SD Gothic Neo", "Malgun Gothic", "AR PL UMing CN")
 #let body-fonts = title-fonts
 #let code-fonts = ("IBM Plex Mono", "JetBrains Mono", "DejaVu Sans Mono", "Consolas")
 
