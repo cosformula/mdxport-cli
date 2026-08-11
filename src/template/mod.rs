@@ -161,6 +161,22 @@ mod tests {
     }
 
     #[test]
+    fn latin_fonts_precede_cjk_fallbacks() {
+        for (style, first_cjk_font) in [
+            (Style::ModernTech, "PingFang SC"),
+            (Style::ClassicEditorial, "Noto Serif CJK SC"),
+            (Style::Standard, "PingFang SC"),
+        ] {
+            let source = style.source();
+            let latin = source
+                .find("Libertinus Serif")
+                .expect("bundled Latin fallback");
+            let cjk = source.find(first_cjk_font).expect("CJK fallback");
+            assert!(latin < cjk, "Latin fallback must precede {first_cjk_font}");
+        }
+    }
+
+    #[test]
     fn compose_classic_editorial() {
         let src = compose_document(
             Style::ClassicEditorial,
